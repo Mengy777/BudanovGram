@@ -1,6 +1,6 @@
 param(
     [Parameter(Mandatory)][ValidateSet('Check','Download','Install')][string]$Mode,
-    [string]$CurrentVersion = '0.1.1',
+    [string]$CurrentVersion = '0.1.2',
     [string]$Version,
     [string]$InstallDirectory,
     [int]$ClientProcessId

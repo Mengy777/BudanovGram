@@ -391,16 +391,8 @@ MainMenu::MainMenu(
 		u"BudanovGram"_q,
 		u"https://desktop.telegram.org"_q));
 	_telegram->setLinksTrusted();
-	// The canary version is too long for the "Version {version}" form.
 	_version->setMarkedText(
-		tr::link(
-			Core::BuildIsCanary
-				? currentVersionShortText()
-				: tr::lng_settings_current_version(
-					tr::now,
-					lt_version,
-					currentVersionShortText()),
-			1) // Link 1.
+		tr::link(currentVersionShortText(), 1) // Link 1.
 		.append(QChar(' '))
 		.append(QChar(8211))
 		.append(QChar(' '))

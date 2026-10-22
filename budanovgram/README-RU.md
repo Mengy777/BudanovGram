@@ -1,4 +1,4 @@
-# BudanovGram 0.1.1 — исходники первой версии
+# BudanovGram 0.1.2 — исходники первой версии
 
 Основа: Telegram Desktop 7.3.1, точный upstream commit указан в release.json.
 Создатель: @Putin_Ebanoe_Huilo.
@@ -14,7 +14,7 @@
 
 ## Текущий статус
 
-Windows x64 Debug-сборка 0.1.1 успешно собрана и установлена в D:\Programs\BudanovGram.
+Windows x64 Debug-сборка 0.1.2 успешно собрана и установлена в D:\Programs\BudanovGram.
 Окно BudanovGram запущено и отвечает. Все 35 этапов подготовки зависимостей завершены.
 GitHub Releases подключён; Android-версия пока не собрана.
 

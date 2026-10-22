@@ -1,4 +1,4 @@
-# BudanovGram 0.1.1
+# BudanovGram 0.1.2
 
 [Описание проекта](README.md).
 

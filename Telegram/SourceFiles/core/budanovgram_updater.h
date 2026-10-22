@@ -4,7 +4,7 @@
 
 namespace Core {
 
-inline constexpr auto BudanovGramVersion = "0.1.1";
+inline constexpr auto BudanovGramVersion = "0.1.2";
 
 void ShowBudanovGramUpdate(not_null<Ui::GenericBox*> parent);
 

@@ -4,7 +4,7 @@
 
 <img src="budanovgram/avatar.png" width="256" alt="BudanovGram">
 
-Текущая версия: **0.1.1**, основа: **Telegram Desktop 7.3.1**.
+Текущая версия: **0.1.2**, основа: **Telegram Desktop 7.3.1**.
 Проверена локальная Windows x64 Debug-сборка.
 
 ## Что изменено

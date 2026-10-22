@@ -192,7 +192,8 @@ QString currentVersionText() {
 }
 
 QString currentVersionShortText() {
-	return CurrentVersionText(false);
+	return u"BudanovGram "_q
+		+ QString::fromLatin1(Core::BudanovGramVersion);
 }
 
 void ArchiveHintBox(
