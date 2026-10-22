@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="420" height="86" viewBox="0 0 420 86" role="img" aria-label="Скачать BudanovGram для Windows x64">
+<defs><linearGradient id="button"><stop stop-color="#00b8eb"/><stop offset="1" stop-color="#3269f5"/></linearGradient></defs>
+<rect x="1" y="1" width="418" height="84" rx="18" fill="url(#button)" stroke="#70edff"/>
+<g transform="translate(31 25)" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 0v22m-8-8 8 8 8-8M0 25v10h30V25"/></g>
+<text x="86" y="37" font-family="Segoe UI,Arial,sans-serif" font-size="22" font-weight="700" fill="white">Скачать для Windows</text>
+<text x="87" y="61" font-family="Segoe UI,Arial,sans-serif" font-size="14" fill="#e3f4ff">Версия 0.1.2 · x64 · Portable ZIP</text>
+<path d="m383 34 9 9-9 9" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

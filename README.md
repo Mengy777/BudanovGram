@@ -1,40 +1,117 @@
-# BudanovGram
+<p align="center">
+  <img src="budanovgram/media/banner.svg" alt="BudanovGram — Telegram на Windows. Свой характер." width="100%">
+</p>
 
-Неофициальный клиент на основе Telegram Desktop. Создатель: @Putin_Ebanoe_Huilo.
+<p align="center">
+  <img src="budanovgram/avatar.png" alt="Иконка BudanovGram" width="112">
+</p>
 
-<img src="budanovgram/avatar.png" width="256" alt="BudanovGram">
+<p align="center">
+  <strong>Знакомый Telegram. Фирменный стиль BudanovGram.</strong><br>
+  Официальный репозиторий BudanovGram — неофициального клиента на основе Telegram Desktop.
+</p>
 
-Текущая версия: **0.1.2**, основа: **Telegram Desktop 7.3.1**.
-Проверена локальная Windows x64 Debug-сборка.
+<p align="center">
+  <a href="https://github.com/Mengy777/BudanovGram/releases/latest"><img alt="Последний релиз" src="https://img.shields.io/github/v/release/Mengy777/BudanovGram?style=flat-square&amp;color=28b6ee&amp;label=release"></a>
+  <img alt="Windows x64" src="https://img.shields.io/badge/Windows-x64-377cf7?style=flat-square">
+  <img alt="Portable ZIP" src="https://img.shields.io/badge/Portable-ZIP-41cfbd?style=flat-square">
+  <a href="LICENSE"><img alt="GPL v3" src="https://img.shields.io/badge/license-GPL_v3-a38bfa?style=flat-square"></a>
+</p>
 
-## Что изменено
+<p align="center">
+  <a href="https://github.com/Mengy777/BudanovGram/releases/download/v0.1.2/BudanovGram-0.1.2-Windows-x64-portable.zip"><img src="budanovgram/media/download-windows.svg" alt="Скачать BudanovGram для Windows x64" width="380"></a>
+</p>
 
-- Название BudanovGram, иконка приложения и Windows-ярлык.
-- Отдельные идентификаторы приложения в Windows.
-- Официальный автоапдейтер отключён.
-- Кнопка «Обновить» проверяет GitHub Releases, загружает пакет и предлагает установку с перезапуском.
+<p align="center">
+  <a href="https://github.com/Mengy777/BudanovGram/releases/download/v0.1.2/BudanovGram-0.1.2-Windows-x64-portable.zip"><strong>↓ Прямая загрузка ZIP · v0.1.2</strong></a>
+  &nbsp; · &nbsp; <a href="#-установка-за-три-шага">Как установить</a>
+  &nbsp; · &nbsp; <a href="https://github.com/Mengy777/BudanovGram/releases">Все версии</a>
+</p>
 
-Android-версия запланирована, исходников Android в этом репозитории пока нет.
+---
 
-## Сборка
+## 🚀 Установка за три шага
 
-Клонирование с подмодулями:
+<p align="center">
+  <img src="budanovgram/media/quick-start.gif" alt="Три шага: скачать ZIP, распаковать архив, запустить EXE и войти в Telegram" width="100%">
+</p>
+
+1. **Скачай.** Нажми [«Прямая загрузка ZIP · v0.1.2»](https://github.com/Mengy777/BudanovGram/releases/download/v0.1.2/BudanovGram-0.1.2-Windows-x64-portable.zip). Для будущих версий открой [последний релиз](https://github.com/Mengy777/BudanovGram/releases/latest) и выбери `BudanovGram-…-Windows-x64-portable.zip` в разделе **Assets**.
+2. **Распакуй.** Нажми правой кнопкой по архиву → **«Извлечь всё…»**. Выбери удобную папку, например `D:\Programs`. Внутри появится папка `BudanovGram`.
+3. **Запусти.** Открой распакованную папку, запусти **`BudanovGram.exe`** и войди в свой Telegram-аккаунт.
+
+> **Для установки не нужны API-ключи, Git, Visual Studio или сборка исходников.** Нужен только ZIP из релиза. Запускай EXE из распакованной папки, а не из архива.
+
+## ✨ Что уже есть
+
+<table>
+  <tr>
+    <td width="50%"><img src="budanovgram/media/style.svg" width="40" alt=""><br><strong>Фирменный стиль</strong><br>Собственная иконка и название BudanovGram в окне и меню клиента.</td>
+    <td width="50%"><img src="budanovgram/media/portable.svg" width="40" alt=""><br><strong>Запуск из папки</strong><br>Portable-версия: распаковал, запустил, вошёл в аккаунт.</td>
+  </tr>
+  <tr>
+    <td><img src="budanovgram/media/updates.svg" width="40" alt=""><br><strong>Обновления внутри клиента</strong><br>Проверка GitHub Releases, загрузка, проверка пакета и перезапуск.</td>
+    <td><img src="budanovgram/media/source.svg" width="40" alt=""><br><strong>Открытые исходники</strong><br>Основа — Telegram Desktop. Изменения BudanovGram доступны в этом репозитории.</td>
+  </tr>
+</table>
+
+**Текущий релиз: 0.1.2 · Windows x64 · тестовая Debug-сборка.**
+
+## 🔄 Как обновляться
+
+**☰ → «О программе» → «Обновить» → «Скачать» → «Установить».**
+
+Ссылка «О программе» находится в самом низу бокового меню, рядом с версией. Если обновление есть, клиент предложит загрузить его и перезапуститься после установки. Данные аккаунтов сохраняются; перед заменой файлов приложения создаётся резервная копия.
+
+<details>
+<summary><strong>Обновление вручную и переход с версии 0.1.0</strong></summary>
+
+1. Закрой BudanovGram через **«Выход»** в меню значка возле часов.
+2. Сохрани резервную копию своей папки `TelegramForcePortable`.
+3. Распакуй новый релиз и замени файлы приложения в прежней папке.
+4. **Сохрани свою папку `TelegramForcePortable`** — в ней находятся аккаунты. В архиве релиза эта папка пустая.
+5. Запусти `BudanovGram.exe`.
+
+В версии **0.1.0** кнопка обновления была заглушкой: сначала обновись вручную. Начиная с **0.1.1**, доступны обновления внутри клиента.
+
+</details>
+
+## 💬 Частые вопросы
+
+**Нужен новый Telegram-аккаунт?** Нет, войди в свой существующий аккаунт.
+
+**Можно пользоваться рядом с обычным Telegram?** Да, установи BudanovGram в отдельную папку. У portable-версии собственная папка данных.
+
+**Где хранятся аккаунты?** В папке `TelegramForcePortable` рядом с приложением. Не отправляй её другим людям и не публикуй в GitHub.
+
+**Как создать ярлык на рабочем столе?** Нажми правой кнопкой по `BudanovGram.exe` → **«Отправить» → «Рабочий стол (создать ярлык)»**. В Windows 11 сначала может понадобиться **«Показать дополнительные параметры»**.
+
+**Где установщик Setup.exe?** Пока распространяется portable-архив ZIP. Отдельного установщика ещё нет.
+
+**Есть версия для Android?** Пока нет. Android-версия запланирована; APK в текущих релизах отсутствует.
+
+**Есть режим призрака или дополнительные Premium-функции?** В версии 0.1.2 таких функций нет. Сейчас доступны возможности, перечисленные выше.
+
+## 🛠 Для разработчиков
+
+Чтобы просто установить клиент, используй [готовую сборку](https://github.com/Mengy777/BudanovGram/releases/latest). Этот раздел нужен для самостоятельной сборки и разработки.
 
 ```sh
 git clone --recursive https://github.com/Mengy777/BudanovGram.git tdesktop
 ```
 
-[Инструкция для Windows](budanovgram/README-RU.md).
-Для сборки нужны собственные Telegram api_id и api_hash в локальном файле.
-Не публикуйте build-secrets.json, каталог out или данные аккаунтов tdata.
+[Инструкция сборки Windows →](budanovgram/README-RU.md)
 
-## Обновления
+Собственные Telegram `api_id` и `api_hash` нужны только при сборке. Файл `build-secrets.json`, каталог `out` и данные аккаунтов должны оставаться локальными.
 
-Сборки публикуются в [GitHub Releases](https://github.com/Mengy777/BudanovGram/releases).
-В «О программе» нажмите «Обновить», затем «Скачать» и «Установить». Проверяется SHA-256 пакета. Папка аккаунтов сохраняется, предыдущие файлы приложения остаются в резервной копии. Для перехода с 0.1.0 на 0.1.1 требуется один раз заменить приложение вручную.
+Нашёл ошибку? [Создай issue](https://github.com/Mengy777/BudanovGram/issues/new) и укажи версию клиента, Windows и шаги воспроизведения. Не прикладывай данные аккаунтов или API-ключи.
 
-## Исходный проект
+---
 
-Основан на [Telegram Desktop](https://github.com/telegramdesktop/tdesktop),
-commit `6fed91ffab9861771a75f29df65031b3c80b6941`.
-[Исходное описание проекта](README.upstream.md), [лицензия](LICENSE), [уведомления](LEGAL).
+<p align="center">
+  <strong>BudanovGram</strong><br>
+  Создатель: @Putin_Ebanoe_Huilo<br>
+  <a href="https://github.com/Mengy777/BudanovGram/releases">Скачать</a> · <a href="https://github.com/Mengy777/BudanovGram/issues">Сообщить об ошибке</a> · <a href="LICENSE">Лицензия</a>
+</p>
+
+Основан на [Telegram Desktop](https://github.com/telegramdesktop/tdesktop) **7.3.1**, upstream commit `6fed91ffab9861771a75f29df65031b3c80b6941`. BudanovGram не является официальным клиентом Telegram. Сохранены [исходное описание проекта](README.upstream.md), [LICENSE](LICENSE) и [LEGAL](LEGAL); лицензия GPL v3 с исключением OpenSSL.
