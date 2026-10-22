@@ -65,7 +65,7 @@ rpl::producer<TextWithEntities> Text3() {
 } // namespace
 
 void AboutBox(not_null<Ui::GenericBox*> box) {
-	box->setTitle(u"Telegram Desktop"_q);
+	box->setTitle(u"BudanovGram"_q);
 
 	auto layout = box->verticalLayout();
 
@@ -128,6 +128,11 @@ void AboutBox(not_null<Ui::GenericBox*> box) {
 	addText(Text2());
 	addText(Text3());
 
+	box->addButton(rpl::single(u"Обновить"_q), [=] {
+		box->getDelegate()->show(Ui::MakeInformBox(
+			u"Источник обновлений BudanovGram пока не настроен. "_q
+			+ u"GitHub Releases будет подключён после создания репозитория."_q));
+	});
 	box->addButton(tr::lng_close(), [=] { box->closeBox(); });
 
 	box->setWidth(st::aboutWidth);
@@ -153,7 +158,8 @@ QString telegramFaqLink() {
 namespace {
 
 [[nodiscard]] QString CurrentVersionText(bool withCommit) {
-	auto result = QString::fromLatin1(AppVersionStr);
+	auto result = u"BudanovGram 0.1.0 / Telegram "_q
+		+ QString::fromLatin1(AppVersionStr);
 	if (Core::BuildIsCanary) {
 		result += Core::CanaryVersionSuffix();
 	} else if (cAlphaVersion()) {

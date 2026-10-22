@@ -329,10 +329,10 @@ void psDoFixPrevious() {
 		HRESULT userDesktopRes = SHGetFolderPath(0, CSIDL_DESKTOPDIRECTORY, 0, SHGFP_TYPE_CURRENT, userDesktopFolder);
 		HRESULT commonDesktopRes = SHGetFolderPath(0, CSIDL_COMMON_DESKTOPDIRECTORY, 0, SHGFP_TYPE_CURRENT, commonDesktopFolder);
 		if (SUCCEEDED(userDesktopRes)) {
-			userDesktopLnk = QString::fromWCharArray(userDesktopFolder) + "\\Telegram.lnk";
+			userDesktopLnk = QString::fromWCharArray(userDesktopFolder) + "\\BudanovGram.lnk";
 		}
 		if (SUCCEEDED(commonDesktopRes)) {
-			commonDesktopLnk = QString::fromWCharArray(commonDesktopFolder) + "\\Telegram.lnk";
+			commonDesktopLnk = QString::fromWCharArray(commonDesktopFolder) + "\\BudanovGram.lnk";
 		}
 		QFile userDesktopFile(userDesktopLnk), commonDesktopFile(commonDesktopLnk);
 		if (QFile::exists(userDesktopLnk) && QFile::exists(commonDesktopLnk) && userDesktopLnk != commonDesktopLnk) {
@@ -483,8 +483,8 @@ void AutostartToggle(bool enabled, Fn<void(bool)> done) {
 		silent,
 		FOLDERID_Startup,
 		L"-autostart",
-		L"Telegram autorun link.\n"
-		"You can disable autorun in Telegram settings.");
+		L"BudanovGram autorun link.\n"
+		"You can disable autorun in BudanovGram settings.");
 	if (done) {
 		done(enabled && success);
 	}
@@ -798,8 +798,8 @@ void psSendToMenu(bool send, bool silent) {
 		silent,
 		FOLDERID_SendTo,
 		L"--",
-		L"Telegram send to link.\n"
-		"You can disable send to menu item in Telegram settings.");
+		L"BudanovGram send to link.\n"
+		"You can disable send to menu item in BudanovGram settings.");
 }
 
 // Stub while we still support Windows 7.

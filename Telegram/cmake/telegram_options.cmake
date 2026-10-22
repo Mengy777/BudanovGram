@@ -4,6 +4,8 @@
 # For license and copyright information please follow this link:
 # https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
+set(DESKTOP_APP_DISABLE_AUTOUPDATE ON CACHE BOOL "BudanovGram uses its own update channel." FORCE)
+
 option(TDESKTOP_API_TEST "Use test API credentials." OFF)
 option(TDESKTOP_BUILD_UPDATE_TESTS "Build the focused update verification test." OFF)
 set(TDESKTOP_API_ID "0" CACHE STRING "Provide 'api_id' for the Telegram API access.")
