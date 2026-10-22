@@ -9,6 +9,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 
 #include "base/platform/base_platform_info.h"
 #include "core/application.h"
+#include "core/budanovgram_updater.h"
 #include "core/file_utilities.h"
 #include "core/update_channel.h"
 #include "core/update_checker.h"
@@ -129,10 +130,9 @@ void AboutBox(not_null<Ui::GenericBox*> box) {
 	addText(Text3());
 
 	box->addButton(rpl::single(u"Обновить"_q), [=] {
-		box->getDelegate()->show(Ui::MakeInformBox(
-			u"Источник обновлений BudanovGram пока не настроен. "_q
-			+ u"GitHub Releases будет подключён после создания репозитория."_q));
+		Core::ShowBudanovGramUpdate(box);
 	});
+
 	box->addButton(tr::lng_close(), [=] { box->closeBox(); });
 
 	box->setWidth(st::aboutWidth);
@@ -158,7 +158,9 @@ QString telegramFaqLink() {
 namespace {
 
 [[nodiscard]] QString CurrentVersionText(bool withCommit) {
-	auto result = u"BudanovGram 0.1.0 / Telegram "_q
+	auto result = u"BudanovGram "_q
+		+ QString::fromLatin1(Core::BudanovGramVersion)
+		+ u" / Telegram "_q
 		+ QString::fromLatin1(AppVersionStr);
 	if (Core::BuildIsCanary) {
 		result += Core::CanaryVersionSuffix();

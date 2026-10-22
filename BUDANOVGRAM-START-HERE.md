@@ -1,5 +1,5 @@
-# BudanovGram 0.1.0
+# BudanovGram 0.1.1
 
 [Описание проекта](README.md).
 
-[Инструкция сборки Windows](budanovgram/README-RU.md).
+[Инструкция сборки и обновления Windows](budanovgram/README-RU.md).

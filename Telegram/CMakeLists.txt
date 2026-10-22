@@ -610,6 +610,8 @@ PRIVATE
     core/ui_integration.cpp
     core/ui_integration.h
     core/update_channel.h
+    core/budanovgram_updater.cpp
+    core/budanovgram_updater.h
     core/update_checker.cpp
     core/update_checker.h
     core/update_keys.cpp
