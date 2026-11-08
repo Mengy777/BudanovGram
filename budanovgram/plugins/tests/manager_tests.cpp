@@ -201,6 +201,14 @@ int RunTests(QString executable, QString root) {
 	if (d->installed && d->installed->count() > 1) d->installed->setCurrentRow(1);
 	qApp->processEvents();
 	check(d->window->grab().save(root + "/budanovgram-plugins-preview.png"), "native UI preview captured");
+	manager.setLocked(true);
+	check(!d->window->isVisible(), "locking client hides plugin windows");
+	manager.show();
+	check(!d->window->isVisible(), "locked manager cannot reopen");
+	check(!manager.installPackage(exampleBytes), "locked client cannot start installation");
+	manager.setLocked(false);
+	manager.show();
+	check(d->window->isVisible(), "manager reopens after unlock");
 	d->window->close();
 	d->plugins.clear();
 	return failures ? 1 : 0;

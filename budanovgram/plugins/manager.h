@@ -26,6 +26,7 @@ public:
 	void start(QString dataDirectory, ClientHandler handler);
 	void show(QWidget *parent = nullptr);
 	bool installPackage(const QByteArray &data, QWidget *parent = nullptr);
+	void setLocked(bool locked);
 	QList<Command> commands(const QString &scope) const;
 	void invoke(const Command &command, const QJsonObject &context);
 	void publish(const QString &event, const QJsonObject &data);

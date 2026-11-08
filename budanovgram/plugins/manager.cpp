@@ -63,6 +63,7 @@ const auto Capabilities = QJsonArray{
 	"messages.setLocalText", "messages.resetLocalText", "messages.send", "messages.edit",
 	"network.fetch", "settings", "storage", "resources", "timers",
 	"clipboard", "ui.panel", "ui.notify", "ui.style", "ui.labels", "ui.openUrl",
+	"client.locked",
 };
 
 QString S(const char *text) {
@@ -193,6 +194,7 @@ QString PermissionText(const QJsonObject &manifest) {
 bool ConfirmInstall(const QJsonObject &manifest, QWidget *parent) {
 	QDialog card(parent);
 	card.setObjectName("PluginInstallCard");
+	card.setProperty("bgPluginUi", true);
 	card.setWindowTitle(S("Установка плагина · BudanovGram"));
 	card.resize(540, 530);
 	card.setStyleSheet(
@@ -282,6 +284,7 @@ struct Manager::Private : QObject {
 	QString originalStyle;
 	bool started = false;
 	bool shuttingDown = false;
+	bool locked = false;
 	QString hostExecutable;
 	QJsonObject preferences;
 
@@ -593,6 +596,11 @@ void Manager::Private::handle(const Ptr &p, const QJsonObject &message) {
 		else if (method.startsWith("ui.")) return "ui";
 		return {};
 	}();
+	if (locked && (method.startsWith("messages.")
+		|| method.startsWith("clipboard.") || method.startsWith("ui."))) {
+		done({}, S("Клиент заблокирован"));
+		return;
+	}
 	if (!permission.isEmpty() && !allowed(p, permission)) {
 		done({}, S("Разрешение не выдано: ") + permission);
 		return;
@@ -600,7 +608,7 @@ void Manager::Private::handle(const Ptr &p, const QJsonObject &message) {
 	if (method == "client.info") {
 		done(QJsonObject{{"name", "BudanovGram"}, {"pluginApiVersion", 1},
 			{"platform", QSysInfo::productType()}, {"runtime", "QuickJS-NG"},
-			{"capabilities", Capabilities}});
+			{"capabilities", Capabilities}, {"locked", locked}});
 	} else if (method == "commands.register") {
 		const auto key = args.value("id").toString();
 		const auto scope = args.value("scope").toString();
@@ -757,6 +765,7 @@ void Manager::Private::handle(const Ptr &p, const QJsonObject &message) {
 void Manager::Private::showPanel(const Ptr &p, const QJsonObject &panel) {
 	p->panels.erase(std::remove_if(p->panels.begin(), p->panels.end(), [](const auto &d) { return d.isNull(); }), p->panels.end());
 	const auto dialog = new QDialog(window);
+	dialog->setProperty("bgPluginUi", true);
 	p->panels.push_back(dialog);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowTitle(panel.value("title").toString().left(160));
@@ -782,6 +791,7 @@ void Manager::Private::showPanel(const Ptr &p, const QJsonObject &panel) {
 }
 
 bool Manager::Private::install(const QByteArray &data, QWidget *parent, const QJsonObject &expected) {
+	if (locked) return false;
 	const auto package = QJsonDocument::fromJson(data).object();
 	auto error = Validate(package);
 	const auto manifest = package.value("manifest").toObject();
@@ -867,6 +877,7 @@ void Manager::Private::refreshList() {
 }
 
 void Manager::Private::showWindow(QWidget *parent) {
+	if (locked) return;
 	if (window) {
 		window->show();
 		window->raise();
@@ -875,6 +886,7 @@ void Manager::Private::showWindow(QWidget *parent) {
 	}
 	const auto dialog = new QDialog(parent);
 	window = dialog;
+	dialog->setProperty("bgPluginUi", true);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowTitle(S("Плагины · BudanovGram"));
 	dialog->resize(820, 620);
@@ -1111,7 +1123,9 @@ void Manager::Private::showWindow(QWidget *parent) {
 }
 
 void Manager::Private::settingsDialog(const Ptr &p, QWidget *parent) {
+	if (locked) return;
 	const auto dialog = new QDialog(parent);
+	dialog->setProperty("bgPluginUi", true);
 	dialog->setAttribute(Qt::WA_DeleteOnClose);
 	dialog->setWindowTitle(S("Настройки · ") + p->package.value("manifest").toObject().value("name").toString());
 	dialog->resize(520, 440);
@@ -1289,11 +1303,13 @@ void Manager::start(QString dataDirectory, ClientHandler handler) {
 }
 
 void Manager::show(QWidget *parent) {
+    if (_private->locked) return;
     _private->showWindow(parent);
 }
 
 bool Manager::installPackage(const QByteArray &data, QWidget *parent) {
 	const auto d = _private.get();
+	if (d->locked) return false;
 	if (!d->install(data, parent)) return false;
 	d->showWindow(parent);
 	const auto id = QJsonDocument::fromJson(data).object().value("manifest").toObject().value("id").toString();
@@ -1314,6 +1330,29 @@ QList<Command> Manager::commands(const QString &scope) const {
         }
     }
     return result;
+}
+
+void Manager::setLocked(bool locked) {
+	const auto d = _private.get();
+	const auto changed = d->locked != locked;
+	d->locked = locked;
+	if (changed) publish("client.locked", {{"locked", locked}});
+	if (!locked) return;
+	auto windows = QList<QPointer<QWidget>>();
+	for (const auto widget : qApp->topLevelWidgets()) {
+		for (auto owner = widget; owner; owner = owner->parentWidget()) {
+			if (owner->property("bgPluginUi").toBool()) {
+				windows.push_back(widget);
+				break;
+			}
+		}
+	}
+	for (const auto &widget : windows) {
+		if (!widget) continue;
+		if (widget.data() == d->window.data()) widget->hide();
+		else if (const auto dialog = qobject_cast<QDialog*>(widget.data())) dialog->reject();
+		else widget->hide();
+	}
 }
 
 void Manager::invoke(const Command &command, const QJsonObject &context) {

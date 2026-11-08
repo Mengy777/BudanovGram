@@ -14,6 +14,7 @@
 #include "main/main_account.h"
 #include "main/main_domain.h"
 #include "main/main_session.h"
+#include "rpl/combine.h"
 #include "ui/widgets/popup_menu.h"
 
 #include <QtCore/QCoreApplication>
@@ -39,6 +40,7 @@ auto Overrides = std::map<QString, LocalOverride>();
 auto PendingEvents = QMap<QString, QJsonObject>();
 auto EventQueued = false;
 auto PackageDownloads = QSet<QString>();
+auto UiLockLifetime = rpl::lifetime();
 
 QString Key(const QJsonObject &ref) {
 	return ref.value("account").toString() + ':'
@@ -167,6 +169,12 @@ void Start() {
 		for (const auto &ref : refs) Refresh(ref);
 	});
 	Engine::Instance().start(cWorkingDir(), Handle);
+	rpl::combine(
+		App().passcodeLockValue(),
+		App().screenIsLockedValue()
+	) | rpl::on_next([](bool passcode, bool screen) {
+		Engine::Instance().setLocked(passcode || screen);
+	}, UiLockLifetime);
 	if (QCoreApplication::arguments().contains(u"-plugins"_q)) {
 		QTimer::singleShot(0, QCoreApplication::instance(), [] { Show(); });
 	}
