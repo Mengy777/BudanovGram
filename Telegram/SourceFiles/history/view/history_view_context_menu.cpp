@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "history/view/history_view_context_menu.h"
+#include "core/budanovgram_plugins.h"
 
 #include "api/api_attached_stickers.h"
 #include "api/api_editing.h"
@@ -1923,6 +1924,9 @@ void FillContextMenuItems(
 	}
 
 	AddCopyLinkAction(result, link);
+	if (item) {
+		Core::Plugins::AddMessageCommands(result, item);
+	}
 	AddMessageActions(result, request, list);
 
 	const auto wasAmount = result->actions().size();

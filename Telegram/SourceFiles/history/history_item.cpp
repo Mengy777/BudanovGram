@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "history/history_item.h"
+#include "core/budanovgram_plugins.h"
 
 #include "api/api_premium.h"
 #include "api/api_sensitive_content.h"
@@ -4121,6 +4122,9 @@ const TextWithEntities &HistoryItem::originalText() const {
 }
 
 const TextWithEntities &HistoryItem::translatedText() const {
+	if (const auto text = Core::Plugins::LocalText(this)) {
+		return *text;
+	}
 	if (isService()) {
 		static const auto kEmpty = TextWithEntities();
 		return kEmpty;
@@ -4778,6 +4782,7 @@ void HistoryItem::clearRichPage() {
 }
 
 void HistoryItem::setTextValue(TextWithEntities text, bool force) {
+	Core::Plugins::ObserveMessage(this, text.text);
 	if (const auto processId = Spellchecker::TryHighlightSyntax(text)) {
 		_flags |= MessageFlag::InHighlightProcess;
 		history()->owner().registerHighlightProcess(processId, this);

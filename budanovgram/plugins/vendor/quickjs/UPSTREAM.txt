@@ -1,0 +1,7 @@
+QuickJS-NG v0.18.0
+https://github.com/quickjs-ng/quickjs
+Commit: d7215b0ad3fc2c562e8317fd9bca058fd4863804
+MIT license: see LICENSE
+
+Local adaptations: CRLF line endings and trailing whitespace cleanup only.
+This is a minimal source subset; integration uses the parent CMakeLists.txt.

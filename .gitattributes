@@ -10,3 +10,10 @@ Telegram/Resources/zxcvbn/*.txt text eol=lf
 
 # Ensure lottie animations are treated as binary files
 *.lottie binary
+
+# Plugin package SHA-256 covers exact bytes, including line endings.
+budanovgram/plugins/examples/*.bgplugin -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+
+# Upstream generated QuickJS headers retain their final blank line.
+budanovgram/plugins/vendor/quickjs/builtin-*.h whitespace=-blank-at-eof
+budanovgram/plugins/vendor/quickjs/libunicode-table.h whitespace=-blank-at-eof

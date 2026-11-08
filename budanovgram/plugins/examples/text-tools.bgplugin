@@ -1,0 +1,31 @@
+{
+  "manifest": {
+    "id": "bg.text-tools",
+    "name": "Текстовые инструменты",
+    "version": "1.0.0",
+    "apiVersion": 1,
+    "author": "BudanovGram",
+    "description": "Подсчёт слов, локальная замена текста и восстановление оригинала.",
+    "permissions": [
+      "messages.read",
+      "messages.local",
+      "ui"
+    ],
+    "networkHosts": [],
+    "settings": [
+      {
+        "key": "prefix",
+        "type": "string",
+        "label": "Префикс локального текста",
+        "default": "✨ "
+      },
+      {
+        "key": "uppercase",
+        "type": "boolean",
+        "label": "Преобразовывать в верхний регистр",
+        "default": true
+      }
+    ]
+  },
+  "script": "bg.commands.register({id:'stats',title:'Статистика текста'}, async context => {\n  const text = context.text || '';\n  await bg.ui.panel({id:'stats',title:'Статистика сообщения',text:\n    `Символов: ${Array.from(text).length}\\nСлов: ${text.trim().split(/\\s+/u).filter(Boolean).length}\\nСтрок: ${text.split('\\n').length}`});\n});\nbg.commands.register({id:'local',title:'Изменить текст только у меня'}, async context => {\n  let text = context.text || '';\n  if (bg.settings.get('uppercase',true)) text = text.toUpperCase();\n  await bg.messages.setLocalText(context,bg.settings.get('prefix','')+text);\n});\nbg.commands.register({id:'restore',title:'Вернуть исходный текст'}, context => bg.messages.resetLocalText(context));"
+}

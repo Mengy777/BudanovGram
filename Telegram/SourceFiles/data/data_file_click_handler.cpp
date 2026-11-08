@@ -8,6 +8,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "data/data_file_click_handler.h"
 
 #include "core/click_handler_types.h"
+#include "core/budanovgram_plugins.h"
 #include "core/file_utilities.h"
 #include "core/application.h"
 #include "data/data_document.h"
@@ -68,6 +69,9 @@ DocumentOpenClickHandler::DocumentOpenClickHandler(
 }
 
 void DocumentOpenClickHandler::onClickImpl() const {
+	if (Core::Plugins::OpenDocument(document(), context())) {
+		return;
+	}
 	_handler(context());
 }
 
@@ -141,6 +145,9 @@ void DocumentSaveClickHandler::SaveAndTrack(
 }
 
 void DocumentSaveClickHandler::onClickImpl() const {
+	if (Core::Plugins::OpenDocument(document(), context())) {
+		return;
+	}
 	SaveAndTrack(context(), document());
 }
 

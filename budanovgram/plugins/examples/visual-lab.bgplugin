@@ -1,0 +1,36 @@
+{
+  "manifest": {
+    "id": "bg.visual-lab",
+    "name": "Визуальная лаборатория",
+    "version": "1.0.0",
+    "apiVersion": 1,
+    "author": "BudanovGram",
+    "description": "Пример собственных настроек, панели, оформления и подписи меню.",
+    "permissions": [
+      "ui",
+      "ui.style",
+      "ui.labels"
+    ],
+    "networkHosts": [],
+    "settings": [
+      {
+        "key": "menuTitle",
+        "type": "string",
+        "label": "Название пункта «Плагины»",
+        "default": "🧩 Расширения"
+      },
+      {
+        "key": "accent",
+        "type": "select",
+        "label": "Акцент стандартных элементов Qt",
+        "options": [
+          "cyan",
+          "purple",
+          "none"
+        ],
+        "default": "cyan"
+      }
+    ]
+  },
+  "script": "async function apply() {\n  await bg.ui.setLabels({'menu.plugins':bg.settings.get('menuTitle','Плагины')});\n  const accent = bg.settings.get('accent','cyan');\n  const color = accent === 'purple' ? '#a78bfa' : '#22d3ee';\n  await bg.ui.setStyle(accent === 'none' ? '' : `QTabBar::tab:selected { color:${color}; } QPushButton { padding:6px; }`);\n}\nbg.events.on('plugin.start',apply);\nbg.settings.onChange(apply);\nbg.commands.register({id:'panel',title:'Моя панель',scope:'main'},() => bg.ui.panel({id:'lab',title:'Визуальная лаборатория',\n  text:'Панель принадлежит плагину. Кнопки отправляют события в JavaScript.\\nНазвание пункта меню изменится при следующем открытии меню.',\n  buttons:[{id:'hello',title:'Нажми меня'}]}));\nbg.events.on('ui.action',action => { if(action.panel==='lab') bg.log('Нажата кнопка',action.action); });"
+}

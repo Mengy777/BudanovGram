@@ -1,0 +1,2 @@
+#pragma once
+inline constexpr char kPluginSdk[] = R"BGSDK(@BG_PLUGIN_SDK@)BGSDK";

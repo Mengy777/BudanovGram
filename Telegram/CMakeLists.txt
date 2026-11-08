@@ -6,6 +6,7 @@
 
 add_executable(Telegram WIN32 MACOSX_BUNDLE)
 init_non_host_target(Telegram)
+add_subdirectory(../budanovgram/plugins ${CMAKE_BINARY_DIR}/budanovgram_plugins)
 
 add_subdirectory(lib_rpl)
 add_subdirectory(lib_crl)
@@ -612,6 +613,8 @@ PRIVATE
     core/update_channel.h
     core/budanovgram_updater.cpp
     core/budanovgram_updater.h
+    core/budanovgram_plugins.cpp
+    core/budanovgram_plugins.h
     core/update_checker.cpp
     core/update_checker.h
     core/update_keys.cpp

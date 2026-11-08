@@ -11,6 +11,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "boxes/abstract_box.h" // Ui::show().
 #include "chat_helpers/ttl_media_layer_widget.h"
 #include "core/application.h"
+#include "core/budanovgram_plugins.h"
 #include "core/click_handler_types.h"
 #include "core/core_settings.h"
 #include "core/mime_type.h"
@@ -240,6 +241,9 @@ void ResolveDocument(
 		return;
 	}
 	const auto msgId = item ? item->fullId() : FullMsgId();
+	if (Core::Plugins::OpenDocument(document, msgId)) {
+		return;
+	}
 
 	const auto showDocument = [&] {
 		if (controller) {

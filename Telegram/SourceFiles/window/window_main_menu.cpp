@@ -6,6 +6,8 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "window/window_main_menu.h"
+#include "../../../budanovgram/plugins/manager.h"
+#include "core/budanovgram_plugins.h"
 
 #include "apiwrap.h"
 #include "base/event_filter.h"
@@ -765,6 +767,23 @@ void MainMenu::setupMenu() {
 	)->setClickedCallback([=] {
 		controller->showSettings();
 	});
+	addAction(
+		rpl::single(BudanovGram::Plugins::Manager::Instance().label(
+			u"menu.plugins"_q, u"Плагины"_q)),
+		{ &st::menuIconSettings }
+	)->setClickedCallback([=] {
+		Core::Plugins::Show();
+	});
+	for (const auto &command : BudanovGram::Plugins::Manager::Instance().commands("main")) {
+		addAction(
+			rpl::single(command.title),
+			{ &st::menuIconSettings }
+		)->setClickedCallback([=] {
+			BudanovGram::Plugins::Manager::Instance().invoke(command, {
+				{ "account", QString::number(_controller->session().uniqueId()) },
+			});
+		});
+	}
 
 	_nightThemeToggle = addAction(
 		tr::lng_menu_night_mode(),

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "plugins": [
+    {
+      "id": "bg.text-tools",
+      "name": "Текстовые инструменты",
+      "version": "1.0.0",
+      "description": "Подсчёт слов, локальная замена текста и восстановление оригинала.",
+      "url": "https://raw.githubusercontent.com/Mengy777/BudanovGram/main/budanovgram/plugins/examples/text-tools.bgplugin",
+      "sha256": "81ffeeadff8d53cafb3a99b7b45c36aca19c8ec6748f37fbc5678dcea4ab5109"
+    },
+    {
+      "id": "bg.api-demo",
+      "name": "Внешний API",
+      "version": "1.0.0",
+      "description": "Пример HTTPS-запроса: информация о последнем релизе BudanovGram.",
+      "url": "https://raw.githubusercontent.com/Mengy777/BudanovGram/main/budanovgram/plugins/examples/api-demo.bgplugin",
+      "sha256": "f025c3a4d41bd40215e1f2cfe2351cbd6388c0b22cca8999aa17982d3fb64b77"
+    },
+    {
+      "id": "bg.visual-lab",
+      "name": "Визуальная лаборатория",
+      "version": "1.0.0",
+      "description": "Пример собственных настроек, панели, оформления и подписи меню.",
+      "url": "https://raw.githubusercontent.com/Mengy777/BudanovGram/main/budanovgram/plugins/examples/visual-lab.bgplugin",
+      "sha256": "c777b190c3f1c2aac9d960c6146edd5e878abef44a58c928321a3f828ecf2d52"
+    }
+  ]
+}
