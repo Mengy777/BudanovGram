@@ -107,11 +107,14 @@ QString Protect(const QString &value, bool decrypt) {
 
 QString Validate(const QJsonObject &package) {
 	const auto m = package.value("manifest").toObject();
-	if (!QRegularExpression("^[a-z][a-z0-9.-]{2,79}$").match(m.value("id").toString()).hasMatch()) {
+	const auto id = m.value("id").toString();
+	if (!QRegularExpression("^[a-z][a-z0-9.-]{1,78}[a-z0-9-]$").match(id).hasMatch()
+		|| QRegularExpression("^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\\.|$)").match(id).hasMatch()) {
 		return S("Некорректный идентификатор плагина.");
 	}
 	const auto version = m.value("version").toString();
 	if (!QRegularExpression("^[0-9]+\\.[0-9]+\\.[0-9]+$").match(version).hasMatch()
+		|| version.size() > 32
 		|| m.value("apiVersion").toInt() != 1
 		|| m.value("name").toString().isEmpty()
 		|| m.value("name").toString().size() > 120
@@ -325,13 +328,23 @@ void Manager::Private::log(const Ptr &p, const QString &text) {
 
 bool Manager::Private::persist(const Ptr &p) {
 	auto state = p->state;
-	auto settings = p->settings;
+	auto settings = QJsonObject();
+	auto memorySettings = QJsonObject();
+	auto types = QJsonObject();
+	const auto previousTypes = state.value("settingTypes").toObject();
+	const auto previousSecrets = state.value("secretSettings").toObject();
 	auto secrets = QJsonObject();
 	for (const auto &entry : p->package.value("manifest").toObject().value("settings").toArray()) {
 		const auto field = entry.toObject();
 		const auto key = field.value("key").toString();
-		if (field.value("type") == "secret") {
-			const auto plain = settings.take(key).toString();
+		const auto type = field.value("type").toString();
+		const auto previous = previousTypes.value(key).toString(previousSecrets.contains(key) ? "secret" : "");
+		const auto changed = !previous.isEmpty() && previous != type;
+		const auto value = !changed && p->settings.contains(key) ? p->settings.value(key) : field.value("default");
+		memorySettings.insert(key, value);
+		types.insert(key, type);
+		if (type == "secret") {
+			const auto plain = value.toString();
 			if (!plain.isEmpty()) {
 				const auto encrypted = Protect(plain, false);
 				if (encrypted.isEmpty()) {
@@ -339,14 +352,20 @@ bool Manager::Private::persist(const Ptr &p) {
 				}
 				secrets.insert(key, encrypted);
 			}
+		} else {
+			settings.insert(key, value);
 		}
 	}
 	state.insert("settings", settings);
 	state.insert("secretSettings", secrets);
+	state.insert("settingTypes", types);
 	if (QJsonDocument(state).toJson().size() > MaxState) {
 		return false;
 	}
-	return Save(path(p, "state.json"), state);
+	if (!Save(path(p, "state.json"), state)) return false;
+	p->state = state;
+	p->settings = memorySettings;
+	return true;
 }
 
 bool Manager::Private::allowed(const Ptr &p, const QString &permission) const {
@@ -804,9 +823,11 @@ bool Manager::Private::install(const QByteArray &data, QWidget *parent, const QJ
 		QMessageBox::warning(parent, S("Ошибка"), S("Не удалось записать пакет."));
 		return false;
 	}
-	stop(p);
+	if (!p->package.isEmpty()) stop(p);
 	p->package = package;
 	p->state.insert("enabled", false);
+	p->state.insert("running", false);
+	p->status = S("Выключен");
 	for (const auto &entry : manifest.value("settings").toArray()) {
 		const auto field = entry.toObject();
 		const auto key = field.value("key").toString();

@@ -29,6 +29,11 @@ int RunTests(QString executable, QString root) {
 	bad.insert("id", "../../escape");
 	check(!Validate({{"manifest", bad}, {"script", "x"}}).isEmpty(), "reject path traversal ID");
 	bad = manifest;
+	bad.insert("id", "test.integration.");
+	check(!Validate({{"manifest", bad}, {"script", "x"}}).isEmpty(), "reject Windows trailing-dot alias");
+	bad.insert("id", "con.plugin");
+	check(!Validate({{"manifest", bad}, {"script", "x"}}).isEmpty(), "reject Windows reserved device alias");
+	bad = manifest;
 	bad.insert("permissions", QJsonArray{"unknown.permission"});
 	check(!Validate({{"manifest", bad}, {"script", "x"}}).isEmpty(), "reject unknown permission");
 	bad = manifest;
@@ -61,6 +66,14 @@ int RunTests(QString executable, QString root) {
 	state.open(QIODevice::ReadOnly);
 	check(!state.readAll().contains(secret.toUtf8()), "secret absent from plaintext state");
 	state.close();
+	auto changedSchema = manifest;
+	changedSchema.insert("settings", QJsonArray{QJsonObject{{"key", "token"}, {"type", "string"}, {"default", ""}}});
+	p->package.insert("manifest", changedSchema);
+	check(d->persist(p) && p->settings.value("token").toString().isEmpty(), "changing secret field type clears old secret");
+	state.open(QIODevice::ReadOnly);
+	check(!state.readAll().contains(secret.toUtf8()), "schema migration does not expose old secret");
+	state.close();
+	p->package.insert("manifest", manifest);
 	p->package.insert("script", R"JS(
 (async () => {
   const flags = {};
