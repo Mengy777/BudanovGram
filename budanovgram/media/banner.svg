@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" role="img" aria-label="BudanovGram — Telegram на Windows. Свой характер.">
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" role="img" aria-label="BudanovGram — Твой Telegram. Твои плагины. Твой стиль.">
 <defs>
  <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#06101f"/><stop offset="1" stop-color="#0e1839"/></linearGradient>
  <linearGradient id="neon"><stop stop-color="#44f1ff"/><stop offset=".55" stop-color="#29adff"/><stop offset="1" stop-color="#a484ff"/></linearGradient>
@@ -9,9 +9,9 @@
 <rect x="2" y="2" width="1276" height="336" rx="25" fill="url(#grid)"/>
 <ellipse cx="1080" cy="170" rx="310" ry="260" fill="url(#halo)"/>
 <path d="M56 69h38" stroke="url(#neon)" stroke-width="4" stroke-linecap="round"/>
-<text x="110" y="76" fill="#81dfff" font-family="Segoe UI,Arial,sans-serif" font-size="16" letter-spacing="4">DESKTOP · OPEN SOURCE · YOUR STYLE</text>
+<text x="110" y="76" fill="#81dfff" font-family="Segoe UI,Arial,sans-serif" font-size="16" letter-spacing="4">DESKTOP · PLUGINS · OPEN SOURCE</text>
 <text x="54" y="171" fill="#f3f9ff" font-family="Segoe UI,Arial,sans-serif" font-size="78" font-weight="700" letter-spacing="-2">Budanov<tspan fill="#51dcff">Gram</tspan></text>
-<text x="58" y="222" fill="#c3d3e7" font-family="Segoe UI,Arial,sans-serif" font-size="25">Telegram на Windows. Свой характер.</text>
+<text x="58" y="222" fill="#c3d3e7" font-family="Segoe UI,Arial,sans-serif" font-size="23">Твой Telegram. Твои плагины. Твой стиль.</text>
 <rect x="58" y="256" width="230" height="34" rx="17" fill="#163149" stroke="#276080"/>
 <circle cx="77" cy="273" r="4" fill="#4df3b2"/>
 <text x="91" y="279" fill="#c5f1ff" font-family="Segoe UI,Arial,sans-serif" font-size="15">WINDOWS x64 · PORTABLE</text>
