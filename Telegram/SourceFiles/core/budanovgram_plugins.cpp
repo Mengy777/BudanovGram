@@ -4,6 +4,7 @@
 #include "apiwrap.h"
 #include "../../../budanovgram/plugins/manager.h"
 #include "core/application.h"
+#include "core/launcher.h"
 #include "data/data_peer.h"
 #include "data/data_document.h"
 #include "data/data_document_media.h"
@@ -168,14 +169,15 @@ void Start() {
 		}
 		for (const auto &ref : refs) Refresh(ref);
 	});
-	Engine::Instance().start(cWorkingDir(), Handle);
+	Engine::Instance().start(cWorkingDir(), Handle,
+		Launcher::Instance().arguments().contains(u"-no-plugins"_q));
 	rpl::combine(
 		App().passcodeLockValue(),
 		App().screenIsLockedValue()
 	) | rpl::on_next([](bool passcode, bool screen) {
 		Engine::Instance().setLocked(passcode || screen);
 	}, UiLockLifetime);
-	if (QCoreApplication::arguments().contains(u"-plugins"_q)) {
+	if (Launcher::Instance().arguments().contains(u"-plugins"_q)) {
 		QTimer::singleShot(0, QCoreApplication::instance(), [] { Show(); });
 	}
 }

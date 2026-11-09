@@ -1219,7 +1219,7 @@ Manager &Manager::Instance() {
     return result;
 }
 
-void Manager::start(QString dataDirectory, ClientHandler handler) {
+void Manager::start(QString dataDirectory, ClientHandler handler, bool safeMode) {
     const auto d = _private.get();
     if (d->started) return;
     d->started = true;
@@ -1252,7 +1252,7 @@ void Manager::start(QString dataDirectory, ClientHandler handler) {
     } else {
         d->hostExecutable = QCoreApplication::applicationDirPath() + "/BudanovPluginHost.exe";
     }
-    const auto safe = QCoreApplication::arguments().contains("-no-plugins");
+    const auto safe = safeMode || QCoreApplication::arguments().contains("-no-plugins");
     for (const auto &id : QDir(d->root).entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
         const auto directory = d->root + '/' + id;
         if (QFileInfo(directory).isSymLink()) continue;

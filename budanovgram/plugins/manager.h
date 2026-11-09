@@ -23,7 +23,7 @@ public:
 	using Reply = std::function<void(QJsonValue, QString)>;
 	using ClientHandler = std::function<void(QString, QJsonObject, Reply)>;
 	static Manager &Instance();
-	void start(QString dataDirectory, ClientHandler handler);
+	void start(QString dataDirectory, ClientHandler handler, bool safeMode = false);
 	void show(QWidget *parent = nullptr);
 	bool installPackage(const QByteArray &data, QWidget *parent = nullptr);
 	void setLocked(bool locked);
