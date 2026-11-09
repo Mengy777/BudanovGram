@@ -5,6 +5,7 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "apiwrap.h"
 
 #include "api/api_authorizations.h"
@@ -1445,6 +1446,7 @@ void ApiWrap::markContentsRead(
 		if (!item->markContentsRead(true) || !item->isRegular()) {
 			continue;
 		}
+		if (!BudanovGram::Privacy::Allowed(session().uniqueId(), BudanovGram::Privacy::Activity::Messages)) continue;
 		if (const auto channel = item->history()->peer->asChannel()) {
 			channelMarkedIds[channel].push_back(MTP_int(item->id));
 		} else {
@@ -1470,6 +1472,7 @@ void ApiWrap::markContentsRead(not_null<HistoryItem*> item) {
 	if (!item->markContentsRead(true) || !item->isRegular()) {
 		return;
 	}
+	if (!BudanovGram::Privacy::Allowed(session().uniqueId(), BudanovGram::Privacy::Activity::Messages)) return;
 	const auto ids = MTP_vector<MTPint>(1, MTP_int(item->id));
 	if (const auto channel = item->history()->peer->asChannel()) {
 		request(MTPchannels_ReadMessageContents(

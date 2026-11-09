@@ -117,17 +117,12 @@ class RuntimeTests(unittest.TestCase):
         h = self.host('invalid syntax !')
         self.assertEqual(h.process.wait(timeout=5), 2)
 
-    def test_examples_and_catalog_hashes(self):
-        root = Path(__file__).resolve().parents[1]
-        catalog = json.loads((root / 'catalog.json').read_text(encoding='utf-8'))
-        for entry in catalog['plugins']:
-            path = root / 'examples' / entry['url'].rsplit('/', 1)[1]
-            data = path.read_bytes()
-            self.assertEqual(hashlib.sha256(data).hexdigest(), entry['sha256'])
-            package = json.loads(data)
-            self.assertEqual(package['manifest']['id'], entry['id'])
-            h = self.host(package['script'])
-            h.until(lambda f: f['type'] == 'ready')
+    def test_user_resolution_api(self):
+        h = self.host("bg.users.resolve({account:'42'},'testuser').then(u=>console.log(u.id))")
+        req = h.until(lambda f: f.get('method') == 'users.resolve')
+        self.assertEqual(req['params'], {'account': '42', 'username': 'testuser'})
+        h.send({'type': 'response', 'id': req['id'], 'result': {'id': '9007199254740993'}})
+        self.assertEqual(h.until(lambda f: f['type'] == 'log')['text'], '9007199254740993')
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "api/api_updates.h"
 
 #include "api/api_authorizations.h"
@@ -999,7 +1000,8 @@ void Updates::updateOnline(crl::time lastNonIdleTime, bool gotOtherOffline) {
 	});
 
 	const auto &config = _session->serverConfig();
-	bool isOnline = Core::App().hasActiveWindow(&session());
+	bool isOnline = Core::App().hasActiveWindow(&session())
+		&& BudanovGram::Privacy::Allowed(_session->uniqueId(), BudanovGram::Privacy::Activity::Online);
 	int updateIn = config.onlineUpdatePeriod;
 	Assert(updateIn >= 0);
 	if (isOnline) {

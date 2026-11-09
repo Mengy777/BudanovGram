@@ -5,6 +5,7 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "data/data_histories.h"
 
 #include "api/api_text_entities.h"
@@ -736,6 +737,11 @@ void Histories::sendReadRequests() {
 
 void Histories::sendReadRequest(not_null<History*> history, State &state) {
 	Expects(state.willReadTill > state.sentReadTill);
+	if (!BudanovGram::Privacy::Allowed(session().uniqueId(), BudanovGram::Privacy::Activity::Messages)) {
+		state.willReadTill = 0;
+		state.willReadWhen = 0;
+		return;
+	}
 
 	const auto tillId = state.sentReadTill = base::take(state.willReadTill);
 	state.willReadWhen = 0;

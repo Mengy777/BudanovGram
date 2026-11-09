@@ -1,4 +1,5 @@
 #include "../manager.cpp"
+#include "../privacy.cpp"
 
 #include <QtCore/QEventLoop>
 #include <QtCore/QTemporaryDir>
@@ -20,6 +21,33 @@ int RunTests(QString executable, QString root) {
 	QTemporaryDir temporary(root + "/plugin-tests-XXXXXX");
 	check(temporary.isValid(), "temporary test directory");
 	if (!temporary.isValid()) return 1;
+	{
+		QFile options(temporary.path() + "/budanovgram-privacy.json");
+		options.open(QIODevice::WriteOnly);
+		options.write(R"JSON({"101":{"enabled":true,"messages":true,"online":false,"typing":true,"stories":true}})JSON");
+		options.close();
+		Privacy::Initialize(temporary.path());
+		check(!Privacy::Allowed(101, Privacy::Activity::Messages), "ghost suppresses read receipts");
+		check(Privacy::Allowed(101, Privacy::Activity::Online), "ghost respects independent online switch");
+		check(!Privacy::Allowed(101, Privacy::Activity::Typing), "ghost suppresses activity");
+		check(!Privacy::Allowed(101, Privacy::Activity::Stories), "ghost suppresses story views");
+		check(Privacy::Allowed(102, Privacy::Activity::Messages), "ghost settings isolated by account");
+		QTimer::singleShot(80, qApp, [&] {
+			const auto dialog = qobject_cast<QDialog*>(qApp->activeModalWidget());
+			if (!dialog) return;
+			for (const auto box : dialog->findChildren<QCheckBox*>()) {
+				if (box->text().contains(S("Включить режим"))) box->setChecked(false);
+			}
+			dialog->grab().save(root + "/budanovgram-ghost-preview.png");
+			dialog->findChild<QDialogButtonBox*>()->button(QDialogButtonBox::Save)->click();
+		});
+		Privacy::Show(101, [] {});
+		check(Privacy::Allowed(101, Privacy::Activity::Messages), "disabling ghost restores normal requests");
+		QFile saved(temporary.path() + "/budanovgram-privacy.json");
+		saved.open(QIODevice::ReadOnly);
+		check(!QJsonDocument::fromJson(saved.readAll()).object().value("101").toObject().value("enabled").toBool(true), "ghost options saved to disk");
+	}
+
 	auto manifest = QJsonObject{{"id", "test.integration"}, {"name", "Test"},
 		{"version", "1.0.0"}, {"apiVersion", 1}, {"permissions", QJsonArray{"messages.send"}},
 		{"settings", QJsonArray{QJsonObject{{"key", "token"}, {"type", "secret"}}}}};
@@ -78,6 +106,7 @@ int RunTests(QString executable, QString root) {
 (async () => {
   const flags = {};
   try { await bg.messages.get({}); } catch(e) { flags.readDenied = true; }
+  try { await bg.users.resolve({account:'1'}, 'testuser'); } catch(e) { flags.usersDenied = true; }
   try { await bg.network.fetch('https://example.org'); } catch(e) { flags.networkDenied = true; }
   try { await bg.clipboard.read(); } catch(e) { flags.clipboardDenied = true; }
   const sent = await bg.messages.send({account:'1',peer:'2'},'test');
@@ -99,6 +128,7 @@ int RunTests(QString executable, QString root) {
 	const auto storage = p->state.value("storage").toObject();
 	const auto flags = storage.value("flags").toObject();
 	check(flags.value("readDenied").toBool(), "read permission enforced in parent");
+	check(flags.value("usersDenied").toBool(), "user resolution permission enforced in parent");
 	check(flags.value("networkDenied").toBool(), "network permission enforced in parent");
 	check(flags.value("clipboardDenied").toBool(), "clipboard permission enforced in parent");
 	check(flags.value("sendAllowed").toBool() && calls == 1, "granted API routed once");
@@ -156,10 +186,11 @@ int RunTests(QString executable, QString root) {
 			}
 		});
 	};
-	QFile exampleFile("budanovgram/plugins/examples/text-tools.bgplugin");
-	exampleFile.open(QIODevice::ReadOnly);
-	const auto exampleBytes = exampleFile.readAll();
-	exampleFile.close();
+	auto fixtureManifest = manifest;
+	fixtureManifest.insert("id", "bg.text-tools");
+	fixtureManifest.insert("name", S("Тест установки"));
+	const auto exampleBytes = QJsonDocument(QJsonObject{{"manifest", fixtureManifest},
+		{"script", "console.log('installation test')"}}).toJson();
 	approve();
 	check(d->install(exampleBytes, nullptr), "install from real package with consent");
 	const auto installed = d->plugins["bg.text-tools"];
@@ -186,18 +217,10 @@ int RunTests(QString executable, QString root) {
 	check(d->installed->currentItem()->data(Qt::UserRole).toString() == "test.chat-card"
 		&& !d->plugins["test.chat-card"]->state.value("enabled").toBool(), "chat install focuses disabled plugin in manager");
 	d->plugins.clear();
-	for (const auto &file : QDir("budanovgram/plugins/examples").entryList({"*.bgplugin"}, QDir::Files)) {
-		const auto example = Read("budanovgram/plugins/examples/" + file);
-		const auto preview = std::make_shared<Manager::Private::Plugin>();
-		preview->id = example.value("manifest").toObject().value("id").toString();
-		preview->package = example;
-		preview->status = S("Выключен");
-		d->plugins[preview->id] = preview;
-	}
 	d->refreshList();
 	manager.show();
 	qApp->processEvents();
-	check(d->window && d->window->findChild<QTabWidget*>()->count() == 3, "manager has installed/catalog/developer tabs");
+	check(d->window && d->window->findChild<QTabWidget*>()->count() == 2, "manager has installed/developer tabs without catalog");
 	if (d->installed && d->installed->count() > 1) d->installed->setCurrentRow(1);
 	qApp->processEvents();
 	check(d->window->grab().save(root + "/budanovgram-plugins-preview.png"), "native UI preview captured");

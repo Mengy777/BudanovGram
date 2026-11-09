@@ -5,11 +5,13 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "window/window_main_menu.h"
 #include "../../../budanovgram/plugins/manager.h"
 #include "core/budanovgram_plugins.h"
 
 #include "apiwrap.h"
+#include "api/api_updates.h"
 #include "base/event_filter.h"
 #include "base/qt_signal_producer.h"
 #include "boxes/about_box.h"
@@ -773,6 +775,12 @@ void MainMenu::setupMenu() {
 		{ &st::menuIconSettings }
 	)->setClickedCallback([=] {
 		Core::Plugins::Show();
+	});
+	addAction(rpl::single(u"Режим призрака"_q), { &st::menuIconSettings })->setClickedCallback([=] {
+		const auto weak = base::make_weak(&_controller->session());
+		BudanovGram::Privacy::Show(_controller->session().uniqueId(), [=] {
+			if (weak) weak->updates().updateOnline(0);
+		});
 	});
 	for (const auto &command : BudanovGram::Plugins::Manager::Instance().commands("main")) {
 		addAction(

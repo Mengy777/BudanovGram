@@ -72,8 +72,12 @@
       setLabels: labels => request('ui.labels', {labels}),
       setStyle: stylesheet => request('ui.style', {stylesheet})
     }),
+    users: Object.freeze({
+      resolve: (ref, username) => request('users.resolve', {account: ref.account, username})
+    }),
     messages: Object.freeze({
       get: ref => request('messages.get', ref),
+      deleteLocal: ref => request('messages.deleteLocal', ref),
       setLocalText: (ref, text) => request('messages.setLocalText', {...ref, text}),
       resetLocalText: ref => request('messages.resetLocalText', ref),
       send: (ref, text) => request('messages.send', {...ref, text}),

@@ -55,15 +55,15 @@ constexpr auto MaxState = 2 * 1024 * 1024;
 constexpr auto MaxResponse = 1024 * 1024;
 const auto Permissions = QSet<QString>{
 	"messages.read", "messages.events", "messages.local", "messages.send",
-	"messages.edit", "network", "clipboard.read", "clipboard.write",
+	"messages.edit", "users.read", "network", "clipboard.read", "clipboard.write",
 	"ui", "ui.style", "ui.labels",
 };
 const auto Capabilities = QJsonArray{
 	"commands.message", "commands.main", "messages.get", "messages.events",
-	"messages.setLocalText", "messages.resetLocalText", "messages.send", "messages.edit",
+	"messages.setLocalText", "messages.resetLocalText", "messages.deleteLocal", "messages.send", "messages.edit",
 	"network.fetch", "settings", "storage", "resources", "timers",
 	"clipboard", "ui.panel", "ui.notify", "ui.style", "ui.labels", "ui.openUrl",
-	"client.locked",
+	"client.locked", "users.resolve", "messages.sent",
 };
 
 QString S(const char *text) {
@@ -171,6 +171,7 @@ QString PermissionText(const QJsonObject &manifest) {
 		{"messages.local", S("Менять отображение текста только у тебя")},
 		{"messages.send", S("Отправлять сообщения от лица аккаунта")},
 		{"messages.edit", S("Редактировать сообщения в Telegram")},
+		{"users.read", S("Находить публичные профили по юзернейму")},
 		{"network", S("Обращаться к внешним API и передавать им данные")},
 		{"clipboard.read", S("Читать буфер обмена")},
 		{"clipboard.write", S("Записывать в буфер обмена")},
@@ -588,7 +589,8 @@ void Manager::Private::handle(const Ptr &p, const QJsonObject &message) {
 			if (method == "messages.send") return "messages.send";
 			if (method == "messages.edit") return "messages.edit";
 			return "messages.local";
-		} else if (method == "network.fetch") return "network";
+		} else if (method == "users.resolve") return "users.read";
+		else if (method == "network.fetch") return "network";
 		else if (method == "clipboard.read") return "clipboard.read";
 		else if (method == "clipboard.write") return "clipboard.write";
 		else if (method == "ui.style") return "ui.style";
@@ -596,7 +598,7 @@ void Manager::Private::handle(const Ptr &p, const QJsonObject &message) {
 		else if (method.startsWith("ui.")) return "ui";
 		return {};
 	}();
-	if (locked && (method.startsWith("messages.")
+	if (locked && (method.startsWith("users.") || method.startsWith("messages.")
 		|| method.startsWith("clipboard.") || method.startsWith("ui."))) {
 		done({}, S("Клиент заблокирован"));
 		return;
@@ -755,7 +757,7 @@ void Manager::Private::handle(const Ptr &p, const QJsonObject &message) {
 	} else if (method == "timers.stop") {
 		delete p->timers.take(args.value("id").toString());
 		done(true);
-	} else if (method.startsWith("messages.") && client) {
+	} else if ((method.startsWith("messages.") || method == "users.resolve") && client) {
 		auto params = args;
 		params.insert("pluginId", p->id);
 		client(method, params, done);
@@ -1003,93 +1005,18 @@ void Manager::Private::showWindow(QWidget *parent) {
 		refreshList();
 	});
 
-	const auto catalogPage = new QWidget(tabs);
-	const auto catalogLayout = new QVBoxLayout(catalogPage);
-	const auto url = new QLineEdit(preferences.value("catalogUrl").toString(
-		"https://raw.githubusercontent.com/Mengy777/BudanovGram/main/budanovgram/plugins/catalog.json"), catalogPage);
-	catalogLayout->addWidget(new QLabel(S("Каталог плагинов (HTTPS JSON):"), catalogPage));
-	catalogLayout->addWidget(url);
-	const auto load = new QPushButton(S("Загрузить каталог"), catalogPage);
-	catalogLayout->addWidget(load);
-	const auto catalog = new QListWidget(catalogPage);
-	const auto catalogSearch = new QLineEdit(catalogPage);
-	catalogSearch->setPlaceholderText(S("Поиск по каталогу…"));
-	catalogLayout->addWidget(catalogSearch);
-	connect(catalogSearch, &QLineEdit::textChanged, dialog, [=](const QString &query) {
-		for (int i = 0; i < catalog->count(); ++i) {
-			const auto row = catalog->item(i);
-			row->setHidden(!row->text().contains(query, Qt::CaseInsensitive));
-		}
-	});
-	catalogLayout->addWidget(catalog);
-	const auto download = new QPushButton(S("Скачать / обновить выбранный плагин"), catalogPage);
-	catalogLayout->addWidget(download);
-	const auto catalogStatus = new QLabel(S("Каталог загружается только по нажатию кнопки."), catalogPage);
-	catalogStatus->setTextFormat(Qt::PlainText);
-	catalogStatus->setWordWrap(true);
-	catalogLayout->addWidget(catalogStatus);
-	tabs->addTab(catalogPage, S("Каталог"));
-	connect(load, &QPushButton::clicked, dialog, [=] {
-		preferences.insert("catalogUrl", url->text());
-		Save(root + "/manager.json", preferences);
-		load->setEnabled(false);
-		catalogStatus->setText(S("Загрузка…"));
-		fetch(dialog, {{"url", url->text()}}, [=](QJsonValue result, QString error) {
-			load->setEnabled(true);
-			if (!error.isEmpty() || result.toObject().value("status").toInt() != 200) {
-				catalogStatus->setText(error.isEmpty() ? S("Каталог недоступен") : error);
-				return;
-			}
-			const auto data = QJsonDocument::fromJson(result.toObject().value("body").toString().toUtf8()).object();
-			if (data.value("schemaVersion").toInt() != 1 || !data.value("plugins").isArray()) {
-				catalogStatus->setText(S("Некорректный формат каталога"));
-				return;
-			}
-			catalog->clear();
-			for (const auto &value : data.value("plugins").toArray()) {
-				if (catalog->count() >= 500) break;
-				const auto item = value.toObject();
-				const auto row = new QListWidgetItem(item.value("name").toString() + " · " + item.value("version").toString()
-					+ "\n" + item.value("description").toString(), catalog);
-				row->setData(Qt::UserRole, item);
-				row->setHidden(!row->text().contains(catalogSearch->text(), Qt::CaseInsensitive));
-			}
-			catalogStatus->setText(S("Выбери плагин. Перед установкой будут показаны его разрешения."));
-		});
-	});
-	connect(download, &QPushButton::clicked, dialog, [=] {
-		if (!catalog->currentItem()) return;
-		const auto item = catalog->currentItem()->data(Qt::UserRole).toJsonObject();
-		if (!QRegularExpression("^[a-f0-9]{64}$").match(item.value("sha256").toString()).hasMatch()) {
-			catalogStatus->setText(S("В каталоге отсутствует корректная SHA-256 сумма"));
-			return;
-		}
-		download->setEnabled(false);
-		catalogStatus->setText(S("Скачивание…"));
-		fetch(dialog, {{"url", item.value("url")}}, [=](QJsonValue result, QString error) {
-			download->setEnabled(true);
-			const auto bytes = result.toObject().value("body").toString().toUtf8();
-			if (!error.isEmpty() || result.toObject().value("status").toInt() != 200
-				|| QCryptographicHash::hash(bytes, QCryptographicHash::Sha256).toHex() != item.value("sha256").toString().toLatin1()) {
-				catalogStatus->setText(error.isEmpty() ? S("Ошибка загрузки или несовпадение SHA-256") : error);
-				return;
-			}
-			catalogStatus->setText(install(bytes, dialog, item) ? S("Установлен. Включи плагин во вкладке «Установленные».") : S("Установка отменена"));
-		});
-	});
-
 	const auto developer = new QWidget(tabs);
 	const auto devLayout = new QVBoxLayout(developer);
 	const auto help = new QLabel(S("JavaScript · API v1 · отдельный процесс QuickJS-NG для каждого плагина\n"
 		"Формат .bgplugin: JSON с manifest, script и необязательными resources.\n"
-		"Справочник API, примеры и исходники доступны в репозитории.\n"
+		"Справочник API и исходники клиента доступны в репозитории.\n"
 		"Аварийный запуск без плагинов: BudanovGram.exe -no-plugins\n"
 		"Секретные настройки Windows шифрует для текущего пользователя (DPAPI).\n"
 		"Обычные настройки и storage сохраняются без шифрования."), developer);
 	help->setTextFormat(Qt::PlainText);
 	help->setWordWrap(true);
 	devLayout->addWidget(help);
-	const auto docs = new QPushButton(S("Документация API и примеры"), developer);
+	const auto docs = new QPushButton(S("Документация API"), developer);
 	devLayout->addWidget(docs);
 	connect(docs, &QPushButton::clicked, dialog, [] {
 		QDesktopServices::openUrl(QUrl("https://github.com/Mengy777/BudanovGram/tree/main/budanovgram/plugins"));

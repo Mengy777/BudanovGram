@@ -3346,6 +3346,7 @@ void HistoryItem::setRealId(MsgId newId) {
 	if (out() && starsPaid()) {
 		_history->session().credits().load(true);
 	}
+	Core::Plugins::ObserveMessage(this, originalText().text, true);
 }
 
 bool HistoryItem::canPin() const {

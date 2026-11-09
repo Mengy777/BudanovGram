@@ -5,6 +5,7 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "data/data_stories.h"
 
 #include "base/unixtime.h"
@@ -1394,6 +1395,7 @@ void Stories::toggleHidden(
 void Stories::sendMarkAsReadRequest(
 		not_null<PeerData*> peer,
 		StoryId tillId) {
+	if (!BudanovGram::Privacy::Allowed(_owner->session().uniqueId(), BudanovGram::Privacy::Activity::Stories)) return;
 	const auto peerId = peer->id;
 	_markReadRequests.emplace(peerId);
 	const auto finish = [=] {
@@ -1422,6 +1424,12 @@ void Stories::checkQuitPreventFinished() {
 }
 
 void Stories::sendMarkAsReadRequests() {
+	if (!BudanovGram::Privacy::Allowed(_owner->session().uniqueId(), BudanovGram::Privacy::Activity::Stories)) {
+		_markReadPending.clear();
+		_markReadTimer.cancel();
+		checkQuitPreventFinished();
+		return;
+	}
 	_markReadTimer.cancel();
 	for (auto i = begin(_markReadPending); i != end(_markReadPending);) {
 		const auto peerId = *i;
@@ -1438,6 +1446,12 @@ void Stories::sendMarkAsReadRequests() {
 }
 
 void Stories::sendIncrementViewsRequests() {
+	if (!BudanovGram::Privacy::Allowed(_owner->session().uniqueId(), BudanovGram::Privacy::Activity::Stories)) {
+		_incrementViewsPending.clear();
+		_incrementViewsTimer.cancel();
+		checkQuitPreventFinished();
+		return;
+	}
 	if (_incrementViewsPending.empty()) {
 		return;
 	}

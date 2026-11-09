@@ -35,7 +35,7 @@ elseif (UNIX)
 endif()
 
 if (TARGET Telegram)
-    add_library(budanovgram_plugins STATIC manager.cpp manager.h)
+    add_library(budanovgram_plugins STATIC manager.cpp manager.h privacy.cpp privacy.h)
     target_link_libraries(budanovgram_plugins PRIVATE desktop-app::external_qt)
     target_compile_features(budanovgram_plugins PRIVATE cxx_std_20)
     if (MSVC)

@@ -5,6 +5,7 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "api/api_send_progress.h"
 
 #include "main/main_session.h"
@@ -109,7 +110,8 @@ bool SendProgressManager::updated(const Key &key, bool doing) {
 }
 
 void SendProgressManager::send(const Key &key, int progress) {
-	if (skipRequest(key)) {
+	if (!BudanovGram::Privacy::Allowed(_session->uniqueId(), BudanovGram::Privacy::Activity::Typing)
+		|| skipRequest(key)) {
 		return;
 	}
 	using Type = SendProgressType;

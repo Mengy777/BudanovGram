@@ -5,6 +5,7 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "chat_helpers/emoji_interactions.h"
 
 #include "chat_helpers/stickers_emoji_pack.h"
@@ -320,6 +321,10 @@ void EmojiInteractions::sendAccumulatedOutgoing(
 	}
 	const auto peer = item->history()->peer;
 	const auto emoji = from->emoji;
+	if (!BudanovGram::Privacy::Allowed(_session->uniqueId(), BudanovGram::Privacy::Activity::Typing)) {
+		animations.erase(from, till);
+		return;
+	}
 	const auto requestId = _session->api().request(MTPmessages_SetTyping(
 		MTP_flags(0),
 		peer->input(),
@@ -471,6 +476,7 @@ void EmojiInteractions::setWaitingForDownload(bool waiting) {
 }
 
 void EmojiInteractions::playStarted(not_null<PeerData*> peer, QString emoji) {
+	if (!BudanovGram::Privacy::Allowed(_session->uniqueId(), BudanovGram::Privacy::Activity::Typing)) return;
 	auto &map = _playStarted[peer];
 	const auto i = map.find(emoji);
 	const auto now = crl::now();

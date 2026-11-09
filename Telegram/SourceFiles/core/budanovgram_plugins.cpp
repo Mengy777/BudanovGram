@@ -3,9 +3,11 @@
 #include "api/api_editing.h"
 #include "apiwrap.h"
 #include "../../../budanovgram/plugins/manager.h"
+#include "../../../budanovgram/plugins/privacy.h"
 #include "core/application.h"
 #include "core/launcher.h"
 #include "data/data_peer.h"
+#include "data/data_user.h"
 #include "data/data_document.h"
 #include "data/data_document_media.h"
 #include "data/data_file_origin.h"
@@ -22,6 +24,7 @@
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QFile>
 #include <QtCore/QSet>
+#include <QtCore/QRegularExpression>
 #include <QtCore/QTimer>
 #include <QtWidgets/QMessageBox>
 
@@ -93,6 +96,40 @@ void Handle(QString method, QJsonObject args, Engine::Reply done) {
 		done({}, u"Аккаунт недоступен"_q);
 		return;
 	}
+	if (method == "users.resolve") {
+		auto username = args.value("username").toString().trimmed();
+		if (username.startsWith('@')) username.remove(0, 1);
+		if (!QRegularExpression("^[A-Za-z][A-Za-z0-9_]{3,31}$").match(username).hasMatch()) {
+			done({}, u"Некорректный юзернейм"_q);
+			return;
+		}
+		const auto weak = base::make_weak(session);
+		session->api().request(MTPcontacts_ResolveUsername(
+			MTP_flags(0), MTP_string(username), MTP_string()
+		)).done([=](const MTPcontacts_ResolvedPeer &result) {
+			if (!weak || App().passcodeLocked() || App().screenIsLocked()) {
+				done({}, u"Аккаунт недоступен или клиент заблокирован"_q);
+				return;
+			}
+			const auto &data = result.data();
+			session->data().processUsers(data.vusers());
+			session->data().processChats(data.vchats());
+			const auto peer = session->data().peerLoaded(peerFromMTP(data.vpeer()));
+			const auto user = peer ? peer->asUser() : nullptr;
+			if (!user) {
+				done({}, u"Этот юзернейм принадлежит не пользователю"_q);
+				return;
+			}
+			done(QJsonObject{
+				{ "id", QString::number(peerToUser(user->id).bare) },
+				{ "username", user->username() },
+				{ "name", user->name() },
+			}, {});
+		}).fail([=](const MTP::Error &error) {
+			done({}, error.type());
+		}).send();
+		return;
+	}
 	const auto item = Item(args);
 	const auto text = args.value("text").toString();
 	if (text.size() > 32000) {
@@ -113,6 +150,17 @@ void Handle(QString method, QJsonObject args, Engine::Reply done) {
 		return;
 	} else if (!item) {
 		done({}, u"Сообщение не загружено или удалено"_q);
+		return;
+	}
+	if (method == "messages.deleteLocal") {
+		if (!item->isRegular()) {
+			done({}, u"Можно удалить только обычное сообщение из локального кэша"_q);
+			return;
+		}
+		Overrides.erase(Key(args));
+		item->destroy();
+		done(true, {});
+
 		return;
 	}
 	if (item->forbidsSaving()) {
@@ -156,6 +204,7 @@ void Handle(QString method, QJsonObject args, Engine::Reply done) {
 } // namespace
 
 void Start() {
+	BudanovGram::Privacy::Initialize(cWorkingDir());
 	Started = true;
 	Engine::Instance().setCleanup([](QString plugin) {
 		auto refs = QList<QJsonObject>();
@@ -269,7 +318,7 @@ void AddMessageCommands(not_null<Ui::PopupMenu*> menu, not_null<HistoryItem*> it
 	}
 }
 
-void ObserveMessage(not_null<HistoryItem*> item, const QString &text) {
+void ObserveMessage(not_null<HistoryItem*> item, const QString &text, bool sent) {
 	if (!Started || item->isService() || item->forbidsSaving()
 		|| App().passcodeLocked() || App().screenIsLocked()) {
 		return;
@@ -278,6 +327,8 @@ void ObserveMessage(not_null<HistoryItem*> item, const QString &text) {
 	Overrides.erase(Key(data));
 	data.insert("text", text);
 	data.insert("outgoing", item->out());
+	data.insert("date", double(item->date()));
+	data.insert("sent", sent || PendingEvents.value(Key(data)).value("sent").toBool());
 	PendingEvents.insert(Key(data), data);
 	if (PendingEvents.size() > 1000) PendingEvents.erase(PendingEvents.begin());
 	if (EventQueued) {
@@ -294,6 +345,9 @@ void ObserveMessage(not_null<HistoryItem*> item, const QString &text) {
 			if (const auto item = Item(data)) {
 				if (!item->forbidsSaving()) {
 					Engine::Instance().publish("message.loaded", data);
+					if (data.value("sent").toBool()) {
+						Engine::Instance().publish("message.sent", data);
+					}
 				}
 			}
 		}

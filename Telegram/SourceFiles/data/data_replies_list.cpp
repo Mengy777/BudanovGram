@@ -5,6 +5,7 @@ the official desktop application for the Telegram messaging service.
 For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
+#include "../../../budanovgram/plugins/privacy.h"
 #include "data/data_replies_list.h"
 
 #include "history/history.h"
@@ -999,6 +1000,10 @@ void RepliesList::readTill(
 }
 
 void RepliesList::sendReadTillRequest() {
+	if (!BudanovGram::Privacy::Allowed(_history->session().uniqueId(), BudanovGram::Privacy::Activity::Messages)) {
+		_readRequestTimer.cancel();
+		return;
+	}
 	if (_readRequestTimer.isActive()) {
 		_readRequestTimer.cancel();
 	}

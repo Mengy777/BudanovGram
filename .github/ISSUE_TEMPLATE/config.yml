@@ -2,7 +2,7 @@ blank_issues_enabled: true
 contact_links:
   - name: 🧩 Документация плагинов BudanovGram
     url: https://github.com/Mengy777/BudanovGram/tree/main/budanovgram/plugins
-    about: API, готовые примеры, установка и настройка плагинов.
+    about: API, формат локальных файлов, установка и настройка плагинов.
   - name: 📥 Скачать или обновить клиент
     url: https://github.com/Mengy777/BudanovGram/releases/latest
     about: Последний опубликованный релиз Windows x64 и список изменений.

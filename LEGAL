@@ -48,3 +48,11 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+
+AyuGram Desktop
+Copyright @Radolyn, 2026, and AyuGram contributors.
+Ghost-mode request gates and per-account controls adapted for BudanovGram.
+Source: https://github.com/AyuGram/AyuGramDesktop
+Reference commit: 0f2a31bb420de98f331990432265b131b8d836b5
+License: GNU General Public License, version 3 (see LICENSE).
