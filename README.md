@@ -179,7 +179,7 @@ git clone --recursive https://github.com/Mengy777/BudanovGram.git tdesktop
 
 <p align="center">
   <strong>BudanovGram</strong><br>
-  Создатель: @Putin_Ebanoe_Huilo<br>
+  Создатель: @tefada<br>
   <a href="https://github.com/Mengy777/BudanovGram/releases">Скачать</a> · <a href="https://github.com/Mengy777/BudanovGram/issues">Сообщить об ошибке</a> · <a href="LICENSE">Лицензия</a>
 </p>
 
